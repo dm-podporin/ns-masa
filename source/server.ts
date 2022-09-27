@@ -1,7 +1,7 @@
 import http from 'http';
 import express, { Express } from 'express';
 import morgan from 'morgan';
-import routes from './routers/post';
+import routes from './routers/demo.route'
 
 const router: Express = express();
 
@@ -27,7 +27,7 @@ router.use((req, res, next) => {
 });
 
 /** Routes */
-router.use('/', routes);
+router.use('/demo', routes);
 
 /** Error handling */
 router.use((req, res, next) => {
