@@ -37,14 +37,23 @@ export class StoreService implements IStoreService {
                 }
                 else {
                     connection.query(query, (queryError: Error | undefined, queryResult: localSroreId [] | undefined) => {
-                        if(queryResult) {
-                            queryResult.forEach((storeId: localSroreId) => {
-                                result.push(
-                                    this.parseLocalStoreId(storeId)
-                                );
-                            });
+                        if(queryError) {
+                           const error: systemError = {
+                            code: ErrorCodes.QueryError,
+                            message: "Incorrect SQL query"
+                           };
+                            reject(error);
                         }
-                        resolve(result);
+                        else{
+                            if(queryResult) {
+                                queryResult.forEach((storeId: localSroreId) => {
+                                    result.push(
+                                        this.parseLocalStoreId(storeId)
+                                    );
+                                });
+                            }
+                            resolve(result);
+                        }
                     })
                 }
             });
