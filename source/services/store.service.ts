@@ -1,7 +1,6 @@
 import { SqlClient, Error, Connection } from "msnodesqlv8";
 import { storeId, systemError } from '../entities';
-import { ErrorCodes } from '../constants';
-
+import { ErrorCodes, DB_CONNECTION_STRING, Queries } from '../constants';
 
 interface IStoreService {
     getStoreId(): Promise<storeId[]>;
@@ -24,8 +23,8 @@ export class StoreService implements IStoreService {
             const result: storeId[]=[]
             const sql: SqlClient = require("msnodesqlv8");
 
-            const connectionString: string = "server=DESKTOP-MRQ963D\\MSSQLSERVER3;Database=Store;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
-            const query: string = "SELECT * FROM store";
+            const connectionString: string = DB_CONNECTION_STRING;
+            const query: string = Queries.Stores;
         
             sql.open(connectionString, (connectionError: Error, connection: Connection) => {
                 if (connectionError) {
