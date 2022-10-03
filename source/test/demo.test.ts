@@ -1,4 +1,4 @@
-const isLeapYear = require('./qa_try.js').isLeapYear;
+const isLeapYear = require('./demo.ts').isLeapYear;
 
 const expect = require("chai").expect;
 
