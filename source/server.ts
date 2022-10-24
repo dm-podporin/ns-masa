@@ -2,7 +2,6 @@ import http from 'http';
 import express, { Express } from 'express';
 import morgan from 'morgan';
 
-import routesDemo from './routers/demo.route'
 import routesStore from './routers/store.router'
 
 
@@ -31,7 +30,6 @@ router.use((req, res, next) => {
 
 /** Routes */
 
-router.use('/demo', routesDemo);
 router.use('/general', routesStore);
 
 /** Error handling */
