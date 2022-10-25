@@ -1,10 +1,8 @@
 import { SqlClient, Error, Connection } from "msnodesqlv8";
-import { storeId, systemError } from '../entities';
-import { ErrorCodes, DB_CONNECTION_STRING, Queries } from '../constants';
+import { stores as store, systemError } from '../entities';
+import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages, Queries } from "../constants";
+import { ErrorHelper } from "../helpers/error.helpers";
 
-interface IStoreService {
-    getStoreId(): Promise<storeId[]>;
-}
 interface localSroreId {
     store_id: number;
     store_name: string;
@@ -16,11 +14,19 @@ interface localSroreId {
     update_user_id: string;
     status_id: string;
 }
+
+interface IStoreService {
+
+    getStoresI(): Promise<store[]>;
+    getStoreByIdI(id: number): Promise<store>;
+}
+
 export class StoreService implements IStoreService {
 
-    public getStoreId(): Promise<storeId[]> {
-        return new Promise<storeId[]> ((resolve, reject) => {
-            const result: storeId[]=[]
+    public getStoresI(): Promise<store[]> {
+        
+        return new Promise<store[]> ((resolve, reject) => {
+            const result: store[]=[]
             const sql: SqlClient = require("msnodesqlv8");
 
             const connectionString: string = DB_CONNECTION_STRING;
@@ -47,7 +53,7 @@ export class StoreService implements IStoreService {
                             if(queryResult) {
                                 queryResult.forEach((storeId: localSroreId) => {
                                     result.push(
-                                        this.parseLocalStoreId(storeId)
+                                        this.parseLocalStores(storeId)
                                     );
                                 });
                             }
@@ -58,12 +64,43 @@ export class StoreService implements IStoreService {
             });
         });
     }
-    private parseLocalStoreId(local: localSroreId): storeId {
+
+    
+    public getStoreByIdI(store_id: number): Promise<store> {
+        return new Promise<store>((resolve, reject) => {
+            let result: store;
+            const sql: SqlClient = require("msnodesqlv8");
+
+            sql.open(DB_CONNECTION_STRING, (connectionError: Error, connection: Connection) => {
+                if (connectionError) {
+                    reject(ErrorHelper.parseError(ErrorCodes.ConnectionError, ErrorMessages.SqlQueryError));
+                }
+                else {
+                    connection.query(`${Queries.StoreById} ${store_id}`, (queryError: Error | undefined, queryResult: localSroreId[] | undefined) => {
+                        if (queryError) {
+                            reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SqlQueryError));
+                        }
+                        else {
+                            if (queryResult !== undefined && queryResult.length === 1) {
+                                result = this.parseLocalStores(queryResult[0]);
+                            }
+                            else if (queryResult !== undefined && queryResult.length === 0) {
+                                // TODO: Not found
+                            }
+
+                            resolve(result);
+                        }
+                    })
+                }
+            });
+        });
+    }
+    private parseLocalStores(local: localSroreId): store {
         return {
             store_id: local.store_id,
-            store_name: local.store_name
+            store_name: local.store_name,
+            city: local.city
         }
     }
-    
 }
 
