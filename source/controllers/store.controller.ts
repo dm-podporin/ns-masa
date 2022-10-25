@@ -1,7 +1,9 @@
 import {Request, Response, NextFunction} from 'express';
 import { StoreService } from '../services/store.service';
-import { stores as store, systemError } from '../entities';
-import { ErrorCodes } from '../constants';
+import { store, systemError } from '../entities';
+import { ErrorCodes, ErrorMessages } from '../constants';
+import { ResponseHelper } from '../helpers/response.helpers';
+import { ErrorHelper } from '../helpers/error.helpers';
 
 const storeService: StoreService = new StoreService();
 
@@ -13,20 +15,7 @@ const getStores = async (req: Request, res: Response, next: NextFunction) => {
             });
         })
         .catch((error: systemError) => {
-            switch(error.code) {
-                case ErrorCodes.ConnectionError:
-                    return res.status(408).json({
-                        errorMessage: error.message
-                    });
-                case ErrorCodes.QueryError:
-                    return res.status(406).json({
-                        errorMessage: error.message
-                    });                
-                default:
-                    return res.status(400).json({
-                        errorMessage: error.message
-                    });
-            }
+            return ResponseHelper.handleError(res, error);
     })
 };
 
@@ -35,14 +24,16 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
 
     const sId: string = req.params.store_id;
     if (isNaN(Number(sId))) {
-        return res.status(500).json
+        const nonNumericError: systemError = ErrorHelper.createError(ErrorCodes.NonNumericInput, ErrorMessages.NonNumericInput);
+        return ResponseHelper.handleError(res, nonNumericError);
     }
 
     if (sId !== null && sId !== undefined) {
         store_id = parseInt(sId);
     }
     else {
-        return res.status(300).json
+        const noInputParameteterError: systemError = ErrorHelper.createError(ErrorCodes.InputParameterNotSupplied, ErrorMessages.InputParameterNotSupplied);
+        return ResponseHelper.handleError(res, noInputParameteterError);
     }
 
     if (store_id > 0) {
@@ -51,25 +42,24 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
                 return res.status(200).json(result);
             })
             .catch((error: systemError) => {
-                switch (error.code) {
-                    case ErrorCodes.ConnectionError:
-                        return res.status(408).json({
-                            errorMessage: error.message
-                        });
-                    case ErrorCodes.QueryError:
-                        return res.status(406).json({
-                            errorMessage: error.message
-                        });
-                    default:
-                        return res.status(400).json({
-                            errorMessage: error.message
-                        });
-                }
+                return ResponseHelper.handleError(res, error);
             });
     }
     else {
-        return res.status(501).json
+        // TODO: Error handling
     }
 };
 
-export default {getStores, getStoreById}
+    const getStoreByCity = async (req: Request, res: Response, next: NextFunction) => {
+        let city: string = req.params.city;
+    
+        storeService.getStoreByCityI(city)
+            .then((result: store[]) => {
+                return res.status(200).json(result);
+            })
+            .catch((error: systemError) => {
+                return ResponseHelper.handleError(res, error);
+            });
+};
+
+export default {getStores, getStoreById,getStoreByCity}
