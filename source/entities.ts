@@ -1,4 +1,4 @@
-export interface stores{
+export interface store{
     store_id: number;
     store_name: string;
     city: string
