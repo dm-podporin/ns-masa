@@ -4,6 +4,7 @@ import { store, systemError } from '../entities';
 import { ErrorCodes, ErrorMessages } from '../constants';
 import { ResponseHelper } from '../helpers/response.helpers';
 import { ErrorHelper } from '../helpers/error.helpers';
+import { RequestHelper } from '../helpers/request.helpers';
 
 const storeService: StoreService = new StoreService();
 
@@ -20,7 +21,27 @@ const getStores = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getStoreById = async (req: Request, res: Response, next: NextFunction) => {
-    let store_id: number = -1;
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.store_id)
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            storeService.getStoreByIdI(numericParamOrError)
+                .then((result: store) => {
+                    return res.status(200).json(result);
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            // TODO: Error handling
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError);
+    }
+};
+
+const updateStoreById = async (req: Request, res: Response, next: NextFunction) => {let store_id: number = -1;
 
     const sId: string = req.params.store_id;
     if (isNaN(Number(sId))) {
@@ -62,4 +83,4 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
             });
 };
 
-export default {getStores, getStoreById,getStoreByCity}
+export default {getStores, getStoreById,getStoreByCity,updateStoreById}
