@@ -15,7 +15,12 @@ export class ErrorMessages {
 
 export class Queries {
     public static Stores : string = "SELECT * FROM store";
-    public static StoreById : string = "SELECT * FROM store WHERE store_id = ";
-    public static StoreByCity: string = "SELECT * FROM store WHERE city LIKE ";}
+    public static StoreById : string = "SELECT * FROM store WHERE store_id = ?";
+    public static StoreByCity: string = "SELECT * FROM store WHERE city LIKE ";
+}
+
+export class SqlParameters {
+     public static Id: string = "id";
+}
 
 export const DB_CONNECTION_STRING : string = "server=DESKTOP-MRQ963D\\MSSQLSERVER3;Database=Store;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}"

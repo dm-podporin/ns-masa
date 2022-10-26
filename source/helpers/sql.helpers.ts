@@ -1,5 +1,5 @@
 import { Connection, SqlClient, Error } from "msnodesqlv8";
-import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages } from "../constants";
+import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages, SqlParameters } from "../constants";
 import { ErrorHelper } from "./error.helpers";
 import { systemError } from "../entities";
 
@@ -30,11 +30,11 @@ export class SqlHelper {
         });
     }
 
-    public static executeQuerySingleResult<T>(query: string): Promise<T> {
+    public static executeQuerySingleResult<T>(query: string, param: number): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             SqlHelper.openConnection()
             .then((connection: Connection) => {
-                connection.query(query, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                connection.query(query, [param], (queryError: Error | undefined, queryResult: T[] | undefined) => {
                     if (queryError) {
                         reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SqlQueryError));
                     }
