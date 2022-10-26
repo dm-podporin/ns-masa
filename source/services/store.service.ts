@@ -48,7 +48,7 @@ export class StoreService implements IStoreService {
     public getStoreByIdI(store_id: number): Promise<store> {
         return new Promise<store>((resolve, reject) => {
             let result: store;
-            SqlHelper.executeQuerySingleResult<localStore>(`${Queries.StoreById} ${store_id}`)
+            SqlHelper.executeQuerySingleResult<localStore>(Queries.StoreById, store_id)
             .then((queryResult: localStore) => {
                     resolve(this.parseLocalStores(queryResult));
                 })
