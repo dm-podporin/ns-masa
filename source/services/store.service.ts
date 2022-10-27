@@ -22,6 +22,7 @@ interface IStoreService {
     getStoresI(): Promise<store[]>;
     getStoreByIdI(store_id: number): Promise<store>;
     getStoreByCityI(city: string): Promise<store[]>;
+    updateStoreByIdI(whiteBoardType: store): Promise<void>;
 }
 
 export class StoreService implements IStoreService {
@@ -59,6 +60,17 @@ export class StoreService implements IStoreService {
         });
     }
 
+    public updateStoreByIdI (store: store): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            SqlHelper.executeQueryNoResult(Queries.UpdateStoreById, store.city, store.store_id)
+                .then(() => {
+                    resolve();
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
     public getStoreByCityI(city: string): Promise<store[]> {
         return new Promise<store[]>((resolve, reject) => {
             const query: string = `${Queries.StoreByCity} '%${city}%'`;

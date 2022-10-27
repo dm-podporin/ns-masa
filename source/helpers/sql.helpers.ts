@@ -6,8 +6,10 @@ import { systemError } from "../entities";
 export class SqlHelper {
     static sql: SqlClient = require("msnodesqlv8");
 
+    // FIXME: SQL injection for LIKE query
     public static executeQueryArrayResult<T>(query: string): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
+
             SqlHelper.openConnection()
             .then((connection: Connection) => {
                 connection.query(query, (queryError: Error | undefined, queryResult: T[] | undefined) => {
@@ -30,11 +32,11 @@ export class SqlHelper {
         });
     }
 
-    public static executeQuerySingleResult<T>(query: string, param: number): Promise<T> {
+    public static executeQuerySingleResult<T>(query: string, ...params : (string|number)[]): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             SqlHelper.openConnection()
             .then((connection: Connection) => {
-                connection.query(query, [param], (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                connection.query(query, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
                     if (queryError) {
                         reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SqlQueryError));
                     }
@@ -64,6 +66,26 @@ export class SqlHelper {
                 })
         });
     }
+
+    public static executeQueryNoResult(query: string, ...params: (string | number)[]): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            SqlHelper.openConnection()
+                .then((connection: Connection) => {
+                    connection.query(query, params, (queryError: Error | undefined, rows: any[] | undefined) => {
+                        if (queryError) {
+                            reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SqlQueryError));
+                        }
+                        else {
+                            resolve();
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                })
+        });
+    }
+
     private static openConnection(): Promise<Connection> {
         return new Promise<Connection>((resolve, reject) => {
             SqlHelper.sql.open(DB_CONNECTION_STRING, (connectionError: Error, connection: Connection) => {
