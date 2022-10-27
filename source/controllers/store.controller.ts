@@ -41,33 +41,31 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
-const updateStoreById = async (req: Request, res: Response, next: NextFunction) => {let store_id: number = -1;
+const updateStoreById = async (req: Request, res: Response, next: NextFunction) => {
 
-    const sId: string = req.params.store_id;
-    if (isNaN(Number(sId))) {
-        const nonNumericError: systemError = ErrorHelper.createError(ErrorCodes.NonNumericInput, ErrorMessages.NonNumericInput);
-        return ResponseHelper.handleError(res, nonNumericError);
-    }
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.store_id)
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            const body: store = req.body;
 
-    if (sId !== null && sId !== undefined) {
-        store_id = parseInt(sId);
-    }
-    else {
-        const noInputParameteterError: systemError = ErrorHelper.createError(ErrorCodes.InputParameterNotSupplied, ErrorMessages.InputParameterNotSupplied);
-        return ResponseHelper.handleError(res, noInputParameteterError);
-    }
-
-    if (store_id > 0) {
-        storeService.getStoreByIdI(store_id)
-            .then((result: store) => {
-                return res.status(200).json(result);
+            storeService.updateStoreByIdI({
+                store_id: numericParamOrError,
+                store_name: body.store_name,
+                city: body.city
             })
+                .then(() => {
+                    return res.sendStatus(200);
+                })
             .catch((error: systemError) => {
                 return ResponseHelper.handleError(res, error);
             });
+        }
+        else {
+            // TODO: Error handling
+        }
     }
     else {
-        // TODO: Error handling
+            return ResponseHelper.handleError(res, numericParamOrError);
     }
 };
 

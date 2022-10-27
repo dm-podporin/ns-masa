@@ -17,6 +17,7 @@ export class Queries {
     public static Stores : string = "SELECT * FROM store";
     public static StoreById : string = "SELECT * FROM store WHERE store_id = ?";
     public static StoreByCity: string = "SELECT * FROM store WHERE city LIKE ";
+    public static UpdateStoreById: string = "UPDATE store SET city = ? WHERE store_id = ?";
 }
 
 export class SqlParameters {
