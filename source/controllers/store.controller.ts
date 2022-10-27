@@ -56,8 +56,8 @@ const updateStoreById = async (req: Request, res: Response, next: NextFunction) 
                 .then(() => {
                     return res.sendStatus(200);
                 })
-            .catch((error: systemError) => {
-                return ResponseHelper.handleError(res, error);
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
             });
         }
         else {

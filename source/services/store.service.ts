@@ -73,8 +73,7 @@ export class StoreService implements IStoreService {
     }
     public getStoreByCityI(city: string): Promise<store[]> {
         return new Promise<store[]>((resolve, reject) => {
-            const query: string = `${Queries.StoreByCity} '%${city}%'`;
-            SqlHelper.executeQueryArrayResult<localStore>(query)
+            SqlHelper.executeQueryArrayResult<localStore>(Queries.StoreByCity, `%${city}%`)
                 .then((queryResult: localStore[]) => {
                     resolve(_.map(queryResult, (result: localStore) => this.parseLocalStores(result)));
                 })
